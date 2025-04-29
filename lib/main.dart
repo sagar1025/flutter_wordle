@@ -6,6 +6,7 @@ void main() {
   runApp(
     MaterialApp(
       home: Scaffold(
+        resizeToAvoidBottomInset: false, //prevents the app from resizing when keyboard is open/closed.
         appBar: AppBar(title: Center(child: Text("WORDLE"))),
         body: GridRowColumn(),
         // body: GridRowColumn(),
@@ -26,44 +27,3 @@ class GridRowColumn extends StatelessWidget {
     return FormGridRow();
   }
 }
-/*
-class ContainerRow extends StatelessWidget {
-  const ContainerRow({super.key});
-
-  @override
-  Widget build(context) {
-    return Row(
-      children: [
-        Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.red)),
-          child: ContainerColumn(message: "Hey"),
-        ),
-        Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.green)),
-          child: ContainerColumn(message: "wyyyoo"),
-        ),
-        Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.purple)),
-          child: Row(children: [Text("Hello World Row!!!!")]),
-        ),
-        Container(
-          decoration: BoxDecoration(border: Border.all(color: Colors.orange)),
-          child: Row(children: [Text("Hello World Row 2!")]),
-        ),
-      ],
-    );
-  }
-}
-
-class ContainerColumn extends StatelessWidget {
-
-  final String message;
-
-  const ContainerColumn({required this.message, super.key});
-
-  @override
-  Widget build(context) {
-    return Column(children: [Text(message)]);
-  }
-}
-*/

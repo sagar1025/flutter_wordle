@@ -23,13 +23,13 @@ class _GridItemState extends State<GridItem> {
   @override
   void initState() {
     super.initState();
-    //print('GridItem ${widget.index} initState: isEnabled = ${widget.isEnabled}');
+    print('GridItem ${widget.index} initState: isEnabled = ${widget.isEnabled}');
   }
 
   @override
   void didUpdateWidget(GridItem oldWidget) {
     super.didUpdateWidget(oldWidget);
-    //print('GridItem ${widget.index} updating: oldEnabled = ${oldWidget.isEnabled}, newEnabled = ${widget.isEnabled}');
+    print('GridItem ${widget.index} updating: oldEnabled = ${oldWidget.isEnabled}, newEnabled = ${widget.isEnabled}');
   }
 
   @override
