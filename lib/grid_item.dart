@@ -6,10 +6,10 @@ class GridItem extends StatefulWidget {
   final bool isEnabled;
   final TextEditingController controller;
   const GridItem({
-    required this.index, 
-    required this.isEnabled, 
+    required this.index,
+    required this.isEnabled,
     required this.controller,
-    super.key
+    super.key,
   });
 
   @override
@@ -23,13 +23,6 @@ class _GridItemState extends State<GridItem> {
   @override
   void initState() {
     super.initState();
-    print('GridItem ${widget.index} initState: isEnabled = ${widget.isEnabled}');
-  }
-
-  @override
-  void didUpdateWidget(GridItem oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    print('GridItem ${widget.index} updating: oldEnabled = ${oldWidget.isEnabled}, newEnabled = ${widget.isEnabled}');
   }
 
   @override
@@ -48,7 +41,7 @@ class _GridItemState extends State<GridItem> {
           enabled: widget.isEnabled,
           style: const TextStyle(fontSize: 26),
           focusNode: currentFocusNode,
-          autofocus: widget.index == 0,
+          autofocus: widget.index % 5 == 0,
           onChanged: (value) {
             if (value.isNotEmpty) {
               currentFocusNode.nextFocus();
@@ -56,7 +49,9 @@ class _GridItemState extends State<GridItem> {
           },
           controller: widget.controller,
           textInputAction:
-              widget.index == 4 ? TextInputAction.done : TextInputAction.next,
+              (widget.index + 1) % 5 == 0
+                  ? TextInputAction.done
+                  : TextInputAction.next,
           inputFormatters: [
             LengthLimitingTextInputFormatter(1),
             FilteringTextInputFormatter.allow(RegExp("[a-zA-Z]")),

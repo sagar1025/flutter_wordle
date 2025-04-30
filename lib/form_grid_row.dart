@@ -2,6 +2,7 @@ import 'dart:collection';
 
 import 'package:flutter_wordle/grid_item.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_wordle/status_banner.dart';
 
 class FormGridRow extends StatefulWidget {
   const FormGridRow({super.key});
@@ -11,41 +12,49 @@ class FormGridRow extends StatefulWidget {
 }
 
 class _FormGridRowState extends State<FormGridRow> {
-  //final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late String answer; //TODO: get this from the backend.
+  late bool isGameOver;
+  final int maxRows = 6; // number of chances/rows.
+
   late List<GlobalKey<FormState>> _formKeysList;
   late List<TextEditingController> _controllers;
-  late List<Widget> _textFields;
-  late List<bool> _enabledStates;
-  late bool _isCorrect;
-  late int activeRowStartIndex;
-  late int rowIndex;
+  late List<GridItem> _textFields;
+  late int activeRowIndex;
   late HashMap<int, Widget> _gridForms;
 
   @override
   void initState() {
     super.initState();
-    _formKeysList = List.generate(6, (index) => GlobalKey<FormState>());
+    answer = "WORLD";//TODO: get this from the backend.
+    isGameOver = false;
+    activeRowIndex = 0;
 
-    activeRowStartIndex = 0;
     _gridForms = HashMap<int, Widget>();
-
-    _controllers = List.generate(30, (index) => TextEditingController());
-    _enabledStates = List.generate(
-      30,
-      (index) => index < activeRowStartIndex + 5,
+    _formKeysList = List.generate(maxRows, (index) => GlobalKey<FormState>());
+    _controllers = List.generate(
+      maxRows * 5,
+      (index) => TextEditingController(),
     );
+    _updateGridFormFields();
+  }
+
+  //rowIndex is the index of the index of the row to update.
+  void _updateGridFormFields() {
+    //generate a controller for each text field.
+    //maxRows * 5 because each word has 5 letters.
     _textFields = List.generate(
-      30,
+      maxRows * 5,
       (index) => GridItem(
         index: index,
-        isEnabled: _enabledStates[index],
+        isEnabled:
+            index >= activeRowIndex * 5 && index < activeRowIndex * 5 + 5,
         controller: _controllers[index],
       ),
     );
 
     _gridForms.addEntries(
       List.generate(
-        6,
+        maxRows,
         (index) => MapEntry(
           index,
           Form(
@@ -60,31 +69,6 @@ class _FormGridRowState extends State<FormGridRow> {
         ),
       ),
     );
-
-    rowIndex = 0;
-    _isCorrect = false;
-  }
-
-  bool isRowEnabled(int index) {
-    print("new indexxx");
-    print(activeRowStartIndex);
-    return index >= activeRowStartIndex && index < activeRowStartIndex + 5;
-  }
-
-  void saveValue(int index, String text) {
-    _controllers[index].text = text;
-  }
-
-  //TODO....
-  void setEnabled(int index, bool enabled) {
-    setState(() {
-      _enabledStates[index] = enabled;
-      _textFields[index] = GridItem(
-        index: index,
-        isEnabled: enabled,
-        controller: _controllers[index],
-      );
-    });
   }
 
   @override
@@ -96,151 +80,71 @@ class _FormGridRowState extends State<FormGridRow> {
   }
 
   void onPressed() {
-    //if (_formKey.currentState!.validate()) {
-    //disable the text fields
-    // setState(() {
-    //   _isEnabled = false;
-    // });
-    // for (int i = 0; i < _controllers.length; i++) {
-    //   print('Text field $i: ${_controllers[i].text}');
-    // }
-
-    if (_formKeysList[rowIndex].currentState!.validate()) {
+    if (_formKeysList[activeRowIndex].currentState!.validate()) {
+      int rowToCheck = activeRowIndex * 5;
       String word = _controllers
-          .sublist(activeRowStartIndex, activeRowStartIndex + 5)
+          .sublist(rowToCheck, rowToCheck + 5)
           .map((c) => c.text)
           .toList()
           .join("");
-      print('All values: $word');
-      const answer = "PILOT";
+
       //check word.
       if (word == answer) {
-        // return toast.
+        _updateGridFormFields();
         setState(() {
-          _isCorrect = true;
+          isGameOver = true;
+          activeRowIndex += 1;
         });
 
-        ScaffoldMessenger.of(context).showMaterialBanner(
-          const MaterialBanner(
-            actions: [
-              Column(children: [Icon(Icons.check_circle_outline)]),
-            ],
-            content: Center(
-              child: Text(
-                'CORRECT!',
-                style: TextStyle(color: Colors.white, fontSize: 20),
-              ),
-            ),
-            backgroundColor: Colors.green,
-          ),
-        );
+        // return toast.
+        ScaffoldMessenger.of(
+          context,
+        ).showMaterialBanner(StatusBanner(success: true, text: 'CORRECT!'));
       } else {
-        print("Incorrect");
-        print("rowIndex: $rowIndex");
-        setState(() {
-          activeRowStartIndex += 5;
-          rowIndex += 1;
-        });
+        if (activeRowIndex == maxRows - 1) {
+          _updateGridFormFields();
+          setState(() {
+            isGameOver = true;
+            activeRowIndex += 1;
+          });
+
+          //return toast.
+          ScaffoldMessenger.of(context).showMaterialBanner(
+            StatusBanner(
+              success: false,
+              text: 'GAME OVER! The answer is $answer',
+            ),
+          );
+        } else {
+          setState(() {
+            activeRowIndex += 1;
+          });
+          _updateGridFormFields();
+        }
       }
     }
-
-    //}
   }
-
-  // void generateTextFields() {
-  //   var row = List.generate(
-  //     5,
-  //     (index) => GridItem(
-  //       index: index,
-  //       isEnabled: _isEnabled,
-  //       controller: _controllers[index],
-  //     ),
-  //   );
-
-  //   setState(() {
-  //     _textFields.addAll(row);
-  //   });
-  // }
 
   @override
   Widget build(context) {
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
-        //key: _formKey,
         children: [
-          // Form(
-          //   key: _formKeysList[0],
-          //   child: Column(
-          //     children: [
-          //       Row(children: _textFields.sublist(0, 5)),
-          //       SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
-
-          // Form(
-          //   key: _formKeysList[1],
-          //   child: Column(
-          //     children: [
-          //       Row(children: _textFields.sublist(5, 10)),
-          //       SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
-
-          // Form(
-          //   key: _formKeysList[2],
-          //   child: Column(
-          //     children: [
-          //       Row(children: _textFields.sublist(10, 15)),
-          //       SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
-
-          // Form(
-          //   key: _formKeysList[3],
-          //   child: Column(
-          //     children: [
-          //       Row(children: _textFields.sublist(15, 20)),
-          //       SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
-
-          // Form(
-          //   key: _formKeysList[4],
-          //   child: Column(
-          //     children: [
-          //       Row(children: _textFields.sublist(20, 25)),
-          //       SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
-
-          // Form(
-          //   key: _formKeysList[5],
-          //   child: Column(
-          //     children: [
-          //       Row(children: _textFields.sublist(25, 30)),
-          //       SizedBox(height: 10),
-          //     ],
-          //   ),
-          // ),
           ..._gridForms.values,
           SizedBox(
             height: 45,
             width: 450,
             child: ElevatedButton(
               onPressed: () {
-                _isCorrect ? null : onPressed();
+                isGameOver ? null : onPressed();
               },
               style: ElevatedButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(9.0),
                 ),
-                backgroundColor: Colors.green.shade500,
+                backgroundColor:
+                    isGameOver ? Colors.grey : Colors.green.shade500,
                 foregroundColor: Colors.white,
                 textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -252,57 +156,3 @@ class _FormGridRowState extends State<FormGridRow> {
     );
   }
 }
-
-/**
- * 
-  @override
-  Widget build(context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: [
-            Row(children: _textFields.sublist(0,5)),
-            SizedBox(height: 10),
-            Row(children: _textFields.sublist(5,10)),
-            SizedBox(height: 10),
-            Row(children: _textFields.sublist(10,15)),
-            SizedBox(height: 10),
-            Row(children: _textFields.sublist(15,20)),
-            SizedBox(height: 10),
-            Row(children: _textFields.sublist(20,25)),
-            SizedBox(height: 10),
-            Row(children: _textFields.sublist(25,30)),
-            SizedBox(height: 10),
-            SizedBox(
-              height: 45,
-              width: 450,
-              child: ElevatedButton(
-                onPressed: () {
-                  _isCorrect ? null : onPressed();
-                },
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(9.0),
-                  ),
-                  backgroundColor: Colors.green.shade500,
-                  foregroundColor: Colors.white,
-                  textStyle: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                child: const Text('Done'),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
- * 
- * 
- * 
- * 
- */
