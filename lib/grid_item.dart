@@ -5,10 +5,12 @@ class GridItem extends StatefulWidget {
   final int index;
   final bool isEnabled;
   final TextEditingController controller;
+  final Color filledColor;
   const GridItem({
     required this.index,
     required this.isEnabled,
     required this.controller,
+    required this.filledColor,
     super.key,
   });
 
@@ -35,11 +37,14 @@ class _GridItemState extends State<GridItem> {
   Widget build(context) {
     return Expanded(
       child: Container(
-        padding: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+        ),
+        margin: const EdgeInsets.only(right: 10),
         child: TextFormField(
           key: _itemKey,
           enabled: widget.isEnabled,
-          style: const TextStyle(fontSize: 26),
+          style: TextStyle(fontSize: 28, color: !widget.isEnabled ? Colors.white : Colors.black, fontWeight: FontWeight.bold),
           focusNode: currentFocusNode,
           autofocus: widget.index % 5 == 0,
           onChanged: (value) {
@@ -66,9 +71,14 @@ class _GridItemState extends State<GridItem> {
             return null;
           },
           decoration: InputDecoration(
-            border: OutlineInputBorder(borderRadius: BorderRadius.zero),
+            border: InputBorder.none,
+            focusedBorder: InputBorder.none,
+            enabledBorder: InputBorder.none,
+            disabledBorder: InputBorder.none,
             contentPadding: const EdgeInsets.fromLTRB(24, 12, 2, 18),
             errorStyle: TextStyle(color: Colors.transparent, fontSize: 0),
+            fillColor: !widget.isEnabled ? widget.filledColor : Colors.grey,
+            filled: !widget.isEnabled && widget.controller.text.isNotEmpty,
           ),
         ),
       ),

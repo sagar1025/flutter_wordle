@@ -21,13 +21,15 @@ class _FormGridRowState extends State<FormGridRow> {
   late List<GridItem> _textFields;
   late int activeRowIndex;
   late HashMap<int, Widget> _gridForms;
+  late HashMap<int, Color> filledColors;
 
   @override
   void initState() {
     super.initState();
-    answer = "WORLD";//TODO: get this from the backend.
+    answer = "WORLD"; //TODO: get this from the backend.
     isGameOver = false;
     activeRowIndex = 0;
+    filledColors = HashMap<int, Color>();
 
     _gridForms = HashMap<int, Widget>();
     _formKeysList = List.generate(maxRows, (index) => GlobalKey<FormState>());
@@ -49,6 +51,7 @@ class _FormGridRowState extends State<FormGridRow> {
         isEnabled:
             index >= activeRowIndex * 5 && index < activeRowIndex * 5 + 5,
         controller: _controllers[index],
+        filledColor: filledColors[index] ?? Colors.grey,
       ),
     );
 
@@ -79,31 +82,57 @@ class _FormGridRowState extends State<FormGridRow> {
     super.dispose();
   }
 
+  HashMap<int, Color> _checkWord(List<String> word) {
+      List<String> answerSet = answer.split("");
+      HashMap<int, Color> tempFilledColors = HashMap<int, Color>();
+
+      for (int i = 0; i < word.length; i++) {
+        for (int j = 0; j < answerSet.length; j++) {
+          if (word[i] == answerSet[j]) {
+            if (i == j) {
+              //correct letter and position.
+              tempFilledColors[i + activeRowIndex * 5] = Colors.green.shade600;
+            } else {
+              //correct letter but wrong position.
+              tempFilledColors[i + activeRowIndex * 5] = Colors.yellow.shade600;
+            }
+          }
+        }
+    }
+    return tempFilledColors;
+  }
+
   void onPressed() {
     if (_formKeysList[activeRowIndex].currentState!.validate()) {
       int rowToCheck = activeRowIndex * 5;
-      String word = _controllers
-          .sublist(rowToCheck, rowToCheck + 5)
-          .map((c) => c.text)
-          .toList()
-          .join("");
+      List<String> word =
+          _controllers
+              .sublist(rowToCheck, rowToCheck + 5)
+              .map((c) => c.text)
+              .toList();
 
-      //check word.
-      if (word == answer) {
-        _updateGridFormFields();
+      HashMap<int, Color> filledRowColors = _checkWord(word);
+
+      //correct guess.
+      if (word.join("") == answer) {
         setState(() {
+          filledColors.addEntries(filledRowColors.entries);
           isGameOver = true;
           activeRowIndex += 1;
         });
-
+        _updateGridFormFields();
         // return toast.
         ScaffoldMessenger.of(
           context,
         ).showMaterialBanner(StatusBanner(success: true, text: 'CORRECT!'));
-      } else {
+      }
+      //incorrect guess.
+      else {
+        //check if this is the last guess.
         if (activeRowIndex == maxRows - 1) {
           _updateGridFormFields();
           setState(() {
+            filledColors.addEntries(filledRowColors.entries);
             isGameOver = true;
             activeRowIndex += 1;
           });
@@ -115,8 +144,11 @@ class _FormGridRowState extends State<FormGridRow> {
               text: 'GAME OVER! The answer is $answer',
             ),
           );
-        } else {
+        }
+        //not the last guess and incorrect guess.
+        else {
           setState(() {
+            filledColors.addEntries(filledRowColors.entries);
             activeRowIndex += 1;
           });
           _updateGridFormFields();
@@ -132,6 +164,7 @@ class _FormGridRowState extends State<FormGridRow> {
       child: Column(
         children: [
           ..._gridForms.values,
+          SizedBox(height: 25),
           SizedBox(
             height: 45,
             width: 450,
@@ -150,7 +183,7 @@ class _FormGridRowState extends State<FormGridRow> {
               ),
               child: const Text('Done'),
             ),
-          ),
+          )
         ],
       ),
     );
