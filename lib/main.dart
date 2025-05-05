@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_wordle/grid_main.dart';
 import 'package:flutter_wordle/game_menu.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-void main() {
+Future main() async {
+  // To load the .env file contents into dotenv.
+
+  await dotenv.load(fileName: ".env");
   runApp(
     MaterialApp(
       home: Navigator(

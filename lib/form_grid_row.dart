@@ -3,6 +3,7 @@ import 'dart:collection';
 import 'package:flutter_wordle/grid_item.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_wordle/status_banner.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class FormGridRow extends StatefulWidget {
   const FormGridRow({super.key});
@@ -26,7 +27,7 @@ class _FormGridRowState extends State<FormGridRow> {
   @override
   void initState() {
     super.initState();
-    answer = "WORLD"; //TODO: get this from the backend.
+    answer = dotenv.get("ANSWER", fallback: "").toUpperCase(); //TODO: get this from the backend.
     isGameOver = false;
     activeRowIndex = 0;
     filledColors = HashMap<int, Color>();
@@ -159,6 +160,9 @@ class _FormGridRowState extends State<FormGridRow> {
 
   @override
   Widget build(context) {
+    if (answer.isEmpty || answer.length != 5) {
+      throw Exception("Game's answer is not set."); 
+    }
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(20),
@@ -188,7 +192,7 @@ class _FormGridRowState extends State<FormGridRow> {
                 child: const Text('Done'),
               ),
             ),
-          ],
+          ]
         ),
       ),
     );
