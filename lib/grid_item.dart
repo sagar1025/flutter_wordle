@@ -23,10 +23,12 @@ class GridItem extends StatefulWidget {
 class _GridItemState extends State<GridItem> {
   final GlobalKey<FormFieldState> _itemKey = GlobalKey<FormFieldState>();
   final FocusNode currentFocusNode = FocusNode();
+  late bool hasError;
 
   @override
   void initState() {
     super.initState();
+    hasError = false;
   }
 
   @override
@@ -39,7 +41,10 @@ class _GridItemState extends State<GridItem> {
   Widget build(context) {
     return Expanded(
       child: Container(
-        decoration: BoxDecoration(border: Border.all(color: Colors.grey)),
+        decoration:
+            widget.isEnabled && hasError
+                ? BoxDecoration(border: Border.all(color: Colors.red))
+                : BoxDecoration(border: Border.all(color: Colors.grey)),
         margin: const EdgeInsets.only(right: 15),
         child: Center(
           child: TextFormField(
@@ -71,6 +76,9 @@ class _GridItemState extends State<GridItem> {
             ],
             validator: (value) {
               if (value == null || value.isEmpty) {
+                setState(() {
+                  hasError = true;
+                });
                 return '';
               }
               return null;
@@ -80,7 +88,10 @@ class _GridItemState extends State<GridItem> {
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
-              contentPadding: Platform.isIOS ? const EdgeInsets.fromLTRB(14, 12, 0, 12) : const EdgeInsets.fromLTRB(20, 12, 16, 12),
+              contentPadding:
+                  Platform.isIOS
+                      ? const EdgeInsets.fromLTRB(14, 12, 0, 12)
+                      : const EdgeInsets.fromLTRB(20, 12, 16, 12),
               errorStyle: TextStyle(color: Colors.transparent, fontSize: 0),
               fillColor: !widget.isEnabled ? widget.filledColor : Colors.grey,
               filled: !widget.isEnabled && widget.controller.text.isNotEmpty,
