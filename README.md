@@ -1,3 +1,3 @@
-# flutter Wordle
+# Wordle
 
-The Wordle game.
+The Wordle game using Flutter
