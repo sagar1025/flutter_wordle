@@ -83,21 +83,21 @@ class _FormGridRowState extends State<FormGridRow> {
   }
 
   HashMap<int, Color> _checkWord(List<String> word) {
-      List<String> answerSet = answer.split("");
-      HashMap<int, Color> tempFilledColors = HashMap<int, Color>();
+    List<String> answerSet = answer.split("");
+    HashMap<int, Color> tempFilledColors = HashMap<int, Color>();
 
-      for (int i = 0; i < word.length; i++) {
-        for (int j = 0; j < answerSet.length; j++) {
-          if (word[i] == answerSet[j]) {
-            if (i == j) {
-              //correct letter and position.
-              tempFilledColors[i + activeRowIndex * 5] = Colors.green.shade600;
-            } else {
-              //correct letter but wrong position.
-              tempFilledColors[i + activeRowIndex * 5] = Colors.yellow.shade600;
-            }
+    for (int i = 0; i < word.length; i++) {
+      for (int j = 0; j < answerSet.length; j++) {
+        if (word[i] == answerSet[j]) {
+          if (i == j) {
+            //correct letter and position.
+            tempFilledColors[i + activeRowIndex * 5] = Colors.green.shade600;
+          } else {
+            //correct letter but wrong position.
+            tempFilledColors[i + activeRowIndex * 5] = Colors.yellow.shade600;
           }
         }
+      }
     }
     return tempFilledColors;
   }
@@ -159,32 +159,37 @@ class _FormGridRowState extends State<FormGridRow> {
 
   @override
   Widget build(context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          ..._gridForms.values,
-          SizedBox(height: 25),
-          SizedBox(
-            height: 45,
-            width: 450,
-            child: ElevatedButton(
-              onPressed: () {
-                isGameOver ? null : onPressed();
-              },
-              style: ElevatedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(9.0),
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          children: [
+            ..._gridForms.values,
+            SizedBox(height: 25),
+            SizedBox(
+              height: 45,
+              width: 450,
+              child: ElevatedButton(
+                onPressed: () {
+                  isGameOver ? null : onPressed();
+                },
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(9.0),
+                  ),
+                  backgroundColor:
+                      isGameOver ? Colors.grey : Colors.green.shade500,
+                  foregroundColor: Colors.white,
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                backgroundColor:
-                    isGameOver ? Colors.grey : Colors.green.shade500,
-                foregroundColor: Colors.white,
-                textStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                child: const Text('Done'),
               ),
-              child: const Text('Done'),
             ),
-          )
-        ],
+          ],
+        ),
       ),
     );
   }
