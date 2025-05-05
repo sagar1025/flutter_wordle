@@ -80,7 +80,7 @@ class _GridItemState extends State<GridItem> {
               focusedBorder: InputBorder.none,
               enabledBorder: InputBorder.none,
               disabledBorder: InputBorder.none,
-              contentPadding: Platform.isIOS ? const EdgeInsets.fromLTRB(18, 12, 16, 12) : const EdgeInsets.fromLTRB(20, 12, 16, 12),
+              contentPadding: Platform.isIOS ? const EdgeInsets.fromLTRB(14, 12, 0, 12) : const EdgeInsets.fromLTRB(20, 12, 16, 12),
               errorStyle: TextStyle(color: Colors.transparent, fontSize: 0),
               fillColor: !widget.isEnabled ? widget.filledColor : Colors.grey,
               filled: !widget.isEnabled && widget.controller.text.isNotEmpty,
